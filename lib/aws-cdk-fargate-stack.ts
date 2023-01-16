@@ -32,6 +32,7 @@ export class AwsCdkFargateStack extends cdk.Stack {
       ],
     });
 
+
     const loadbalancer = new ApplicationLoadBalancer(this, "lb", {
       vpc,
       internetFacing: true,
@@ -39,6 +40,8 @@ export class AwsCdkFargateStack extends cdk.Stack {
         subnetType: ec2.SubnetType.PUBLIC,
       }),
     });
+
+    
   }
 }
 
