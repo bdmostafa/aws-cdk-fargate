@@ -21,7 +21,7 @@ export class AwsCdkFargateStack extends cdk.Stack {
         {
           cidrMask: 24,
           name: "application",
-          subnetType: ec2.SubnetType.PRIVATE_WITH_NAT,
+          subnetType: ec2.SubnetType.PRIVATE_ISOLATED,
         },
       ],
     });
