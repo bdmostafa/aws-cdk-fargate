@@ -49,6 +49,10 @@ export class AwsCdkFargateStack extends cdk.Stack {
       vpc,
       clusterName: "fargate-node-cluster",
     });
+
+    const repo = new ecr.Repository(this, "Repo", {
+      repositoryName: "fargate-nodejs-app",
+    });
     
     const executionRole = new iam.Role(this, "ExecutionRole", {
       assumedBy: new iam.ServicePrincipal("ecs-tasks.amazonaws.com"),
@@ -57,10 +61,6 @@ export class AwsCdkFargateStack extends cdk.Stack {
           "service-role/AmazonECSTaskExecutionRolePolicy"
         ),
       ],
-    });
-
-    const repo = new ecr.Repository(this, "Repo", {
-      repositoryName: "fargate-nodejs-app",
     });
 
     new aws_ecs_patterns.ApplicationLoadBalancedFargateService(
