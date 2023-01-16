@@ -2,7 +2,10 @@ import * as cdk from 'aws-cdk-lib';
 import { Construct } from 'constructs';
 // import * as sqs from 'aws-cdk-lib/aws-sqs';x
 import * as ec2 from 'aws-cdk-lib/aws-ec2';
+import * as ecs from 'aws-cdk-lib/aws-ecs';
+import * as iam from 'aws-cdk-lib/aws-iam';
 import { ApplicationLoadBalancer } from 'aws-cdk-lib/aws-elasticloadbalancingv2';
+import { ManagedPolicy } from 'aws-cdk-lib/aws-iam';
 
 export class AwsCdkFargateStack extends cdk.Stack {
   constructor(scope: Construct, id: string, props?: cdk.StackProps) {
@@ -32,7 +35,6 @@ export class AwsCdkFargateStack extends cdk.Stack {
       ],
     });
 
-
     const loadbalancer = new ApplicationLoadBalancer(this, "lb", {
       vpc,
       internetFacing: true,
@@ -41,7 +43,19 @@ export class AwsCdkFargateStack extends cdk.Stack {
       }),
     });
 
+    const cluster = new ecs.Cluster(this, "Cluster", {
+      vpc,
+      clusterName: "fargate-node-cluster",
+    });
     
+    const executionRole = new iam.Role(this, "ExecutionRole", {
+      assumedBy: new iam.ServicePrincipal("ecs-tasks.amazonaws.com"),
+      managedPolicies: [
+        ManagedPolicy.fromAwsManagedPolicyName(
+          "service-role/AmazonECSTaskExecutionRolePolicy"
+        ),
+      ],
+    });
   }
 }
 
