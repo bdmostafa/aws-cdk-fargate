@@ -4,6 +4,8 @@ import { Construct } from 'constructs';
 import * as ec2 from 'aws-cdk-lib/aws-ec2';
 import * as ecs from 'aws-cdk-lib/aws-ecs';
 import * as iam from 'aws-cdk-lib/aws-iam';
+import * as ecr from 'aws-cdk-lib/aws-ecr';
+import { aws_ecs_patterns } from 'aws-cdk-lib'
 import { ApplicationLoadBalancer } from 'aws-cdk-lib/aws-elasticloadbalancingv2';
 import { ManagedPolicy } from 'aws-cdk-lib/aws-iam';
 
@@ -56,6 +58,33 @@ export class AwsCdkFargateStack extends cdk.Stack {
         ),
       ],
     });
+
+    const repo = new ecr.Repository(this, "Repo", {
+      repositoryName: "fargate-nodejs-app",
+    });
+
+    new aws_ecs_patterns.ApplicationLoadBalancedFargateService(
+      this,
+      "FargateNodeService",
+      {
+        cluster,
+        taskImageOptions: {
+          image: ecs.ContainerImage.fromRegistry("amazon/amazon-ecs-sample"),
+          containerName: "nodejs-app-container",
+          family: "fargate-node-task-defn",
+          containerPort: 80,
+          executionRole,
+        },
+        cpu: 256,
+        memoryLimitMiB: 512,
+        desiredCount: 2,
+        serviceName: "fargate-node-service",
+        taskSubnets: vpc.selectSubnets({
+          subnetType: ec2.SubnetType.PRIVATE_ISOLATED,
+        }),
+        loadBalancer: loadbalancer,
+      }
+    );
   }
 }
 
